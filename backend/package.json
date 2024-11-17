@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/AravindDasarathy/text-editor#readme",
   "dependencies": {
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
