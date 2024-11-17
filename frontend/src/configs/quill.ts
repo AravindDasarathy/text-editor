@@ -1,4 +1,4 @@
-const configs = {
+const toolbarModules = {
   toolbar: [
     [{ 'header': '1'}, {'header': '2'}, { 'font': [] }, {size: []}],
     ['bold', 'italic', 'underline', 'strike', 'blockquote'],
@@ -8,10 +8,11 @@ const configs = {
   ]
 };
 
-const formats = [
+
+const toolbarFormats = [
   'header', 'font', 'size',
   'bold', 'italic', 'underline', 'strike', 'blockquote',
   'list', 'bullet', 'indent'
 ];
 
-export { configs, formats };
+export { toolbarModules, toolbarFormats };

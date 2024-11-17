@@ -4,9 +4,12 @@ import { DeltaStatic, Sources } from 'quill';
 import { io, Socket } from 'socket.io-client';
 import 'react-quill/dist/quill.snow.css';
 
-import { configs, formats } from './configs/quill';
-import { serverConfigs } from './configs/app';
-import { AppEvents } from './configs/eventTypes';
+import {
+  toolbarModules,
+  toolbarFormats,
+  serverConfigs,
+  AppEvents
+} from '../configs';
 
 // TODO: For performance, not persisting text as react state.
 
@@ -34,6 +37,8 @@ const TextEditor = () => {
   }, []);
 
   const handleChange = (value: string, delta: DeltaStatic, source: Sources, editor: ReactQuill.UnprivilegedEditor) => {
+    // This check is a must to prevent infinite loop of delta broadcasting.
+    // https://github.com/zenoamaro/react-quill/blob/master/README.md#using-deltas
     if (source !== 'user') {
       return;
     }
@@ -48,8 +53,8 @@ const TextEditor = () => {
       }}
       theme='snow'
       onChange={handleChange}
-      modules={configs}
-      formats={formats}
+      modules={toolbarModules}
+      formats={toolbarFormats}
     />
   );
 };

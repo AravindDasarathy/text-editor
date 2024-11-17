@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextEditor } from './TextEditor';
+import { TextEditor } from './components/TextEditor';
 import './styles.css';
 
 // TODO: Error boundary
