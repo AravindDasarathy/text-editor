@@ -1,4 +1,4 @@
-import { HTTP_STATUS_CODES } from './constants';
+import { HTTP_STATUS_CODES } from './constants.js';
 
 class AppError extends Error {
   constructor(message, statusCode) {

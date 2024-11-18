@@ -1,9 +1,6 @@
 import winston from 'winston';
-import dotenv from 'dotenv';
 
 const { combine, timestamp, json } = winston.format;
-
-dotenv.config();
 
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
