@@ -1,16 +1,28 @@
-import { Server } from 'socket.io';
-import { clientConfigs, serverConfigs } from './configs/app.js';
-import { AppEvents } from './configs/eventTypes.js';
+import { serverConfigs } from './configs/app.js';
+import app from './app.js';
+import logger from './logger.js';
+import { connectDB } from './db.js';
 
-const io = new Server(serverConfigs.port, {
-  cors: {
-    origin: [clientConfigs.url],
-    methods: ['GET', 'POST']
-  }
+connectDB();
+
+app.listen(serverConfigs.port, () => {
+  logger.info(`Server is running on ${serverConfigs.port}`);
+})
+
+app.on('error', error => {
+  logger.error(error);
+  process.exit(1);
 });
 
-io.on('connection', socket => {
-  socket.on(AppEvents.SEND_CHANGES, (delta) => {
-    socket.broadcast.emit(AppEvents.RECEIVE_CHANGES, delta);
-  });
-});
+// const shutdown = () => {
+//   logger.info({ message: 'Exiting' });
+
+//   app.close(() => {
+//     process.exit(0);
+//   });
+// };
+
+// process.on('SIGINT', shutdown);
+// process.on('SIGUSR1', shutdown);
+// process.on('SIGUSR2', shutdown);
+// process.on('exit', shutdown);
