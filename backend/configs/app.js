@@ -15,8 +15,10 @@ export const serverConfigs = {
 };
 
 export const jwtConfigs = {
-  expiry: '10m',
-  secret: process.env.JWT_SECRET
+  accessTokenSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
+  refreshTokenSecret: process.env.JWT_REFRESH_TOKEN_SECRET,
+  accessTokenExpiry: process.env.JWT_ACCESS_TOKEN_EXPIRY || '1m',
+  refreshTokenExpiry: process.env.JWT_REFRESH_TOKEN_EXPIRY || '2m'
 };
 
 export const dbConfigs = {

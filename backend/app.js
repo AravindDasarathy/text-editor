@@ -1,6 +1,7 @@
 import express from 'express';
 import { createServer } from 'http';
-// import cors from 'cors';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { Server } from 'socket.io';
 import { clientConfigs } from './configs/app.js';
 import { AppEvents } from './configs/eventTypes.js';
@@ -14,8 +15,12 @@ import {
 
 const app = express();
 
-// app.use(cors());
+app.use(cors({
+  origin: clientConfigs.url,
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
 app.use(requestIdGenerator);
 app.use(requestLogger);
 app.use(Routes());

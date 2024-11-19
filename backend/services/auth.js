@@ -37,10 +37,10 @@ const isAuthorisedUser = async (reqId, email, password) => {
     };
   }
 
-  const isCorrectPassword =  bcrypt.compare(password, user.password);
+  const isCorrectPassword =  await bcrypt.compare(password, user.password);
 
   if (!isCorrectPassword) {
-    logger.info({ id: req.id, message: 'Incorrect password', data: email });
+    logger.info({ id: reqId, message: 'Incorrect password', data: email });
 
     return {
       isAuthorised: false,
@@ -54,11 +54,19 @@ const isAuthorisedUser = async (reqId, email, password) => {
   };
 };
 
-const authenticateUser = async (userId) => {
-  const token = jwt.sign({ id: userId },jwtConfigs.secret, { expiresIn: jwtConfigs.expiry });
+const generateTokens = (userId) => {
+  const payload = { userId };
 
-  return token;
+  const accessTokenOptions = { expiresIn: jwtConfigs.accessTokenExpiry };
+  const accessToken = jwt.sign(payload, jwtConfigs.accessTokenSecret, accessTokenOptions);
+
+  const refreshTokenOptions = { expiresIn: jwtConfigs.refreshTokenExpiry };
+  const refreshToken = jwt.sign(payload, jwtConfigs.refreshTokenSecret, refreshTokenOptions);
+
+  return { accessToken, refreshToken };
 };
+
+const authenticateUser = (userId) => generateTokens(userId);
 
 const registerUser = async (reqId, user) => {
   const existingUser = await getUserByEmailFromDb(user.email);
@@ -117,7 +125,6 @@ const sendVerificationEmail = async (reqId, user, verificationUrl) => {
 
     logger.info({ id: reqId, message: 'Email sent successfully', data: response.data });
   } catch (error) {
-    console.error(error);
     logger.error({
       id: reqId,
       message: 'Mailgun API error',
@@ -149,5 +156,6 @@ export {
   isTokenExpired,
   findUserById,
   updateUser,
-  getTokenDetails
+  getTokenDetails,
+  generateTokens
 };

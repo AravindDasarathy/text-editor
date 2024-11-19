@@ -1,3 +1,5 @@
+import jwt from 'jsonwebtoken';
+
 import logger from '../logger.js';
 import {
   isAuthorisedUser,
@@ -9,10 +11,12 @@ import {
   isTokenExpired,
   findUserById,
   updateUser,
-  getTokenDetails
+  getTokenDetails,
+  generateTokens
 } from '../services/auth.js';
 import { ForbiddenError, UnauthorizedError } from '../errors.js';
 import { HTTP_STATUS_CODES } from '../constants.js';
+import { jwtConfigs } from '../configs/app.js';
 
 const loginHandler = async (req, res, next) => {
   const { email, password } = req.body;
@@ -20,15 +24,22 @@ const loginHandler = async (req, res, next) => {
   try {
     const { isAuthorised, user } = await isAuthorisedUser(req.id, email, password);
 
-    if (!user.isVerified) {
-      throw new ForbiddenError('User not verified');
-    }
-
     if (!isAuthorised) {
       throw new UnauthorizedError('Incorrect Credentials');
     }
 
-    const token = authenticateUser(user._id);
+    if (!user.isVerified) {
+      throw new ForbiddenError('User not verified');
+    }
+
+    const { accessToken, refreshToken } = authenticateUser(user._id);
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: false, // due to localhost (http)
+      sameSite: 'Strict',
+      maxAge: 2 * 60 * 1000,
+    });
 
     logger.info({
       id: req.id,
@@ -36,7 +47,7 @@ const loginHandler = async (req, res, next) => {
       data: user
     });
 
-    return res.status(HTTP_STATUS_CODES.ACCEPTED).json(token);
+    return res.status(HTTP_STATUS_CODES.ACCEPTED).json({ accessToken });
   } catch (error) {
     next(error);
   }
@@ -128,8 +139,73 @@ const userVerificationHandler =  async (req, res, next) => {
   }
 };
 
+const refreshTokenHandler = async (req, res, next) => {
+  const refreshToken = req.cookies['refresh_token'];
+
+  if (!refreshToken) {
+    return next(new UnauthorizedError('No refresh token provided'));
+  }
+
+  try {
+    const payload = jwt.verify(refreshToken, jwtConfigs.refreshTokenSecret);
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(payload.userId);
+
+    res.cookie('refresh_token', newRefreshToken, {
+      httpOnly: false,
+      // secure: true,
+      sameSite: 'Strict',
+      maxAge: 2 * 60 * 1000,
+    });
+
+    res.json({ accessToken });
+  } catch (error) {
+    next(new ForbiddenError('Invalid refresh token'));
+  }
+};
+
+const verifyAccessToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return next(new UnauthorizedError('No token provided'));
+
+  jwt.verify(token, jwtConfigs.accessTokenSecret, (err, payload) => {
+    console.log(err);
+    if (err) return next(new ForbiddenError('Invalid access token'));
+
+    req.user = payload;
+    next();
+  });
+};
+
+const logoutHandler = async (req, res, next) => {
+  /**
+   * Accepting risks of not invalidating both tokens because:
+   * 1. Refresh token is stored as http-only cookie (prevents xss).
+   * 2. Access token is made short lived.
+   * This is done to make user session stateless, thereby, making it performant and simple.
+   *
+   * In production, I ideally will want to invalidate refresh tokens by persisting them in an
+   * in-memory cache and follow blacklist/whitelist strategies. Now, omitting this for simplicity
+   */
+  try {
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: false, // due to localhost (http)
+      sameSite: 'Strict',
+    });
+
+    res.status(HTTP_STATUS_CODES.OK).json({ message: 'Logged out successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   loginHandler,
   userRegisterationHandler,
-  userVerificationHandler
+  userVerificationHandler,
+  refreshTokenHandler,
+  verifyAccessToken,
+  logoutHandler
 };

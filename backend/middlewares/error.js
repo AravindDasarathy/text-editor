@@ -15,7 +15,7 @@ const undefinedRoutesHandler = (req, res, next) => {
 
 const globalErrorHandler = (err, req, res, next) => {
   res.status(err.statusCode || HTTP_STATUS_CODES.SERVICE_UNAVAILABLE)
-    .json({ message: 'Something went wrong' });
+    .json({ message: err.message || 'Something went wrong' });
   res.end();
 
   const errorObj = {

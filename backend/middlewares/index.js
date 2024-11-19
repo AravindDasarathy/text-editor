@@ -4,5 +4,7 @@ export { userValidator } from './validator.js';
 export {
   loginHandler,
   userRegisterationHandler,
-  userVerificationHandler
+  userVerificationHandler,
+  refreshTokenHandler,
+  logoutHandler
 } from './auth.js';
