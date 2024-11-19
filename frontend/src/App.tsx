@@ -1,9 +1,21 @@
+// App.tsx
 import React from 'react';
-import { TextEditor } from './components/TextEditor';
-import './styles.css';
+import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LoginPage from './components/Login';
 
-// TODO: Error boundary
+// TODO: Error Boundary
 
-const App = () => <TextEditor />;
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+};
 
 export default App;
