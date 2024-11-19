@@ -16,12 +16,13 @@ const undefinedRoutesHandler = (req, res, next) => {
 const globalErrorHandler = (err, req, res, next) => {
   res.status(err.statusCode || HTTP_STATUS_CODES.SERVICE_UNAVAILABLE)
     .json({ message: err.message || 'Something went wrong' });
-  res.end();
 
   const errorObj = {
     id: req.id,
-    error: err
-  };
+    message: err.message,
+    statusCode: err.statusCode,
+    ...(process.env.NODE_ENV === 'dev' && { stack: err.stack }),
+  }
 
   if (err.isOperational) {
     logger.warn(errorObj);
