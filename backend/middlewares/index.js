@@ -6,5 +6,12 @@ export {
   userRegisterationHandler,
   userVerificationHandler,
   refreshTokenHandler,
+  verifyAccessToken,
   logoutHandler
 } from './auth.js';
+export {
+  getDocumentsHandler,
+  createDocumentHandler,
+  getDocumentHandler,
+  updateDocumentHandler
+} from './documents.js';

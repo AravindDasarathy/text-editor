@@ -27,6 +27,12 @@ class UnauthorizedError extends AppError {
   }
 }
 
+class NotFoundError extends AppError {
+  constructor(message = 'Not Found') {
+    super(message, HTTP_STATUS_CODES.NOT_FOUND);
+  }
+}
+
 class InternalServerError extends AppError {
   constructor(message = 'Internal server error') {
     super(message, HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
@@ -44,5 +50,6 @@ export {
   ForbiddenError,
   UnauthorizedError,
   InternalServerError,
-  ServiceUnavailableError
+  ServiceUnavailableError,
+  NotFoundError
 };

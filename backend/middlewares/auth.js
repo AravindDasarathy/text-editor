@@ -16,7 +16,7 @@ import {
 } from '../services/auth.js';
 import { ForbiddenError, UnauthorizedError } from '../errors.js';
 import { HTTP_STATUS_CODES } from '../constants.js';
-import { jwtConfigs } from '../configs/app.js';
+import { cookieConfigs, jwtConfigs } from '../configs/app.js';
 
 const loginHandler = async (req, res, next) => {
   const { email, password } = req.body;
@@ -38,7 +38,7 @@ const loginHandler = async (req, res, next) => {
       httpOnly: true,
       secure: false, // due to localhost (http)
       sameSite: 'Strict',
-      maxAge: 2 * 60 * 1000,
+      maxAge: cookieConfigs.refreshTokenExpiry,
     });
 
     logger.info({
@@ -47,7 +47,7 @@ const loginHandler = async (req, res, next) => {
       data: user
     });
 
-    return res.status(HTTP_STATUS_CODES.OK).json({ accessToken });
+    return res.status(HTTP_STATUS_CODES.OK).json({ accessToken, user });
   } catch (error) {
     next(error);
   }
@@ -85,7 +85,7 @@ const userVerificationHandler =  async (req, res, next) => {
         data: token
       });
 
-      return res.status(HTTP_STATUS_CODES.FORBIDDEN).send({ message: 'URL expired or invalid '});
+      return res.status(HTTP_STATUS_CODES.UNAUTHORIZED).send({ message: 'URL expired or invalid '});
     }
 
     if (isTokenExpired(tokenDetails)) {
@@ -95,7 +95,7 @@ const userVerificationHandler =  async (req, res, next) => {
         data: tokenDetails
       });
 
-      return res.status(HTTP_STATUS_CODES.FORBIDDEN).send({ message: 'URL expired' });
+      return res.status(HTTP_STATUS_CODES.UNAUTHORIZED).send({ message: 'URL expired' });
     }
 
     const user = await findUserById(tokenDetails.userId);
@@ -151,15 +151,15 @@ const refreshTokenHandler = async (req, res, next) => {
     const { accessToken, refreshToken: newRefreshToken } = generateTokens(payload.userId);
 
     res.cookie('refresh_token', newRefreshToken, {
-      httpOnly: false,
-      // secure: true,
+      httpOnly: true,
+      secure: false, // due to localhost (http)
       sameSite: 'Strict',
-      maxAge: 2 * 60 * 1000,
+      maxAge: cookieConfigs.refreshTokenExpiry,
     });
 
     res.json({ accessToken });
   } catch (error) {
-    next(new ForbiddenError('Invalid refresh token'));
+    next(new UnauthorizedError('Invalid refresh token'));
   }
 };
 
@@ -170,8 +170,7 @@ const verifyAccessToken = (req, res, next) => {
   if (!token) return next(new UnauthorizedError('No token provided'));
 
   jwt.verify(token, jwtConfigs.accessTokenSecret, (err, payload) => {
-    console.log(err);
-    if (err) return next(new ForbiddenError('Invalid access token'));
+    if (err) return next(new UnauthorizedError('Invalid access token'));
 
     req.user = payload;
     next();

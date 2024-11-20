@@ -18,7 +18,11 @@ export const jwtConfigs = {
   accessTokenSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
   refreshTokenSecret: process.env.JWT_REFRESH_TOKEN_SECRET,
   accessTokenExpiry: process.env.JWT_ACCESS_TOKEN_EXPIRY || '1m',
-  refreshTokenExpiry: process.env.JWT_REFRESH_TOKEN_EXPIRY || '2m'
+  refreshTokenExpiry: process.env.JWT_REFRESH_TOKEN_EXPIRY || '2d'
+};
+
+export const cookieConfigs = {
+  refreshTokenExpiry: 1000 * 60 * 60 * 24 * 2
 };
 
 export const dbConfigs = {
