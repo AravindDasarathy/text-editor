@@ -1,37 +1,45 @@
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 interface LoginResponse {
   accessToken: string;
+  user: {
+    id: string;
+    email: string;
+    username: string;
+  };
 }
 
 export const useAuth = () => {
-  const { setAccessToken } = useContext(AuthContext)!;
+  const { setAccessToken, setUser } = useContext(AuthContext)!;
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<void> => {
     try {
-      const response = await axios.post<LoginResponse>(
+      const response: AxiosResponse<LoginResponse> = await axios.post(
         'http://localhost:3001/login',
         { email, password },
-        { withCredentials: true } // Include cookies in requests
+        { withCredentials: true }
       );
       setAccessToken(response.data.accessToken);
-      // Redirect to protected route or handle success
+      setUser(response.data.user);
     } catch (error) {
       console.error('Login failed:', error);
+      throw error; // Propagate the error to be handled in the component
     }
   };
 
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     try {
       await axios.post('http://localhost:3001/logout', {}, { withCredentials: true });
       setAccessToken(null);
-      // Redirect to login page or handle logout success
+      setUser(null);
     } catch (error) {
       console.error('Logout failed:', error);
+      throw error;
     }
   };
 
   return { login, logout };
 };
+
