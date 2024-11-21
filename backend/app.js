@@ -47,7 +47,7 @@ io.use((socket, next) => {
 
   jwt.verify(token, jwtConfigs.accessTokenSecret, (err, payload) => {
     if (err) return next(new Error('Unauthorized'));
-    console.log(payload);
+
     socket.data.userId = payload.userId;
     next();
   });

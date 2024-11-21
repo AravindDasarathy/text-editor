@@ -6,17 +6,16 @@ import {
   authenticateUser,
   registerUser,
   sendVerificationEmail,
-  saveUserVerificationToken,
   isValidToken,
   isTokenExpired,
   findUserById,
   updateUser,
-  getTokenDetails,
+  findUserByToken,
   generateTokens
 } from '../services/auth.js';
 import { ForbiddenError, UnauthorizedError } from '../errors.js';
 import { HTTP_STATUS_CODES } from '../constants.js';
-import { cookieConfigs, jwtConfigs } from '../configs/app.js';
+import { clientConfigs, cookieConfigs, jwtConfigs } from '../configs/app.js';
 
 const loginHandler = async (req, res, next) => {
   const { email, password } = req.body;
@@ -56,8 +55,14 @@ const loginHandler = async (req, res, next) => {
 const userRegisterationHandler = async (req, res, next) => {
   try {
     const savedUser = await registerUser(req.id, req.body);
-    const verificationUrl = await saveUserVerificationToken(req.id, savedUser);
-    await sendVerificationEmail(req.id, savedUser, verificationUrl);
+
+    /**
+     * TODO:
+     * Ideally, we should rollback user creation if sendVerificationEmail() fails.
+     * Rather than rollbacks, we can gracefully handle email failures and
+     * provide users with a way to ask for verification again.
+     */
+    await sendVerificationEmail(req.id, savedUser);
 
     res.status(HTTP_STATUS_CODES.CREATED)
       .json({ message: 'User created successfully', data: savedUser });
@@ -69,71 +74,61 @@ const userRegisterationHandler = async (req, res, next) => {
 const userVerificationHandler =  async (req, res, next) => {
   try {
     const token = req.params.token;
+    const clientRedirectUrl = `${clientConfigs.url}/login`;
 
     if (!isValidToken(token)) {
       logger.info({ id: req.id, message: 'Invalid token', data: token });
 
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({ message: 'Invalid URL' });
+      return res.redirect(`${clientRedirectUrl}?message=verification_failed`);
     }
 
-    const tokenDetails = await getTokenDetails(token);
+    const userTokenDetails = await findUserByToken(token);
 
-    if (!tokenDetails) {
+    if (!userTokenDetails) {
       logger.info({
         id: req.id,
         message: 'Verification token expired or invalid',
         data: token
       });
 
-      return res.status(HTTP_STATUS_CODES.UNAUTHORIZED).send({ message: 'URL expired or invalid '});
+      return res.redirect(`${clientRedirectUrl}?message=verification_failed`);
     }
 
-    if (isTokenExpired(tokenDetails)) {
+    if (isTokenExpired(userTokenDetails)) {
       logger.info({
         id: req.id,
         message: 'Verification token expired',
-        data: tokenDetails
+        data: userTokenDetails
       });
 
-      return res.status(HTTP_STATUS_CODES.UNAUTHORIZED).send({ message: 'URL expired' });
+      return res.redirect(`${clientRedirectUrl}?message=verification_expired`);
     }
 
-    const user = await findUserById(tokenDetails.userId);
-
-    if (!user) {
-      logger.info({
-        id: req.id,
-        message: 'User not found',
-        data: tokenDetails
-      });
-
-      return res.status(HTTP_STATUS_CODES.NOT_FOUND).send({ message: 'User not found' });
-    }
-
-    if (user.isVerified) {
+    if (userTokenDetails.isVerified) {
       logger.info({
         id: req.id,
         message: 'User already verified',
-        data: {
-          username: user.username
-        }
+        data: userTokenDetails
       });
 
-      return res.status(HTTP_STATUS_CODES.BAD_REQUEST).send({ message: 'Email is already verified' });
+      return res.redirect(`${clientRedirectUrl}?message=already_verified`);
     }
 
-    await updateUser(user, { isVerified: true });
+    const updates = {
+      isVerified: true,
+      verificationToken: undefined,
+      verificationTokenExpiresAt: undefined
+    };
+
+    await updateUser(userTokenDetails, updates);
 
     logger.info({
       id: req.id,
       message: 'User verified',
-      data: {
-        username: user.username,
-        token: token
-      }
+      data: userTokenDetails
     });
 
-    res.status(HTTP_STATUS_CODES.OK).send({ message: 'Email verified successfully' });
+    res.redirect(`${clientRedirectUrl}?message=verification_success`);
   } catch (error) {
     next(error);
   }

@@ -1,19 +1,24 @@
 import { User } from '../models/User.js';
 
-const getUserByEmailFromDb = (email) => User.findOne({ email });
+const getUserByEmailFromDb = (email, options = {}) => User.findOne({ email }).session(options.session);
 
-const createUserInDb = (user) => new User(user).save();
+const createUserInDb = (user) => User.create(user);
 
-const findUserByIdFromDb = (userId) => User.findById(userId);
+const findUserByIdFromDb = (userId, options = {}) => User.findById(userId).session(options.session);
 
-const updateUserDb = (user, update) => User.updateOne(
+const updateUserDb = (user, update, options = {}) => User.updateOne(
   { _id: user._id },
-  { $set: update }
+  { $set: update },
+  options
 );
+
+const findUserByTokenFromDb = (verificationToken, options = {}) =>
+  User.findOne({ verificationToken }).session(options.session)
 
 export {
   getUserByEmailFromDb,
   createUserInDb,
   findUserByIdFromDb,
-  updateUserDb
+  updateUserDb,
+  findUserByTokenFromDb
 };

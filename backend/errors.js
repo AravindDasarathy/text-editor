@@ -33,6 +33,12 @@ class NotFoundError extends AppError {
   }
 }
 
+class ConflictError extends AppError {
+  constructor(message = 'Conflict') {
+    super(message, HTTP_STATUS_CODES.CONFLICT);
+  }
+}
+
 class InternalServerError extends AppError {
   constructor(message = 'Internal server error') {
     super(message, HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR);
@@ -51,5 +57,6 @@ export {
   UnauthorizedError,
   InternalServerError,
   ServiceUnavailableError,
-  NotFoundError
+  NotFoundError,
+  ConflictError
 };
