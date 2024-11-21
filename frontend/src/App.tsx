@@ -8,6 +8,7 @@ import Dashboard from './components/Dashboard';
 import TextEditor from './components/TextEditor';
 import InitRoute from './components/InitRoute';
 import NotFound from './components/NotFound';
+import RegisterPage from './components/Register';
 
 // TODO: Error Boundary
 
@@ -18,6 +19,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<InitRoute />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route
             path="/dashboard"
             element={

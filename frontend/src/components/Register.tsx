@@ -1,40 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import { useCredentials } from '../hooks/useCredentials';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-const loginMessages: Record<string, string> = {
-  'verification_failed': 'Invalid verification link.',
-  'verification_expired': 'Verification link has expired.',
-  'already_verified': 'Your email is already verified. Please log in.',
-  'verification_success': 'Your email is verified successfully. Please log in.'
-};
-
-const LoginPage: React.FC = () => {
-  const { login } = useAuth();
+const RegisterPage: React.FC = () => {
+  const [username, setUsername] = useState<string>('');
   const [email, password, setCredentials] = useCredentials();
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [alertMessage, setAlertMessage] = useState('');
-  const location = useLocation();
 
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const messageKey = queryParams.get('message');
-
-    if (messageKey) {
-      setAlertMessage(loginMessages[messageKey] || 'Email verification failed.');
-    }
-  }, [location.search]);
-
-  const handleInputFor = (key: 'email' | 'password') => (
+  const handleInputChange = (key: 'username' | 'email' | 'password') => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setCredentials({
-      [key]: event.target.value,
-    });
+    if (key === 'username') {
+      setUsername(event.target.value);
+    } else {
+      setCredentials({
+        [key]: event.target.value,
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -42,11 +27,16 @@ const LoginPage: React.FC = () => {
     setError(null);
     setLoading(true);
     try {
-      await login(email, password);
-      // Navigate to dashboard upon successful login
-      navigate('/dashboard');
-    } catch (err) {
-      setError('Invalid email or password');
+      await axios.post(
+        'http://localhost:3001/register',
+        { username, email, password },
+        { withCredentials: true }
+      );
+      // Redirect to login upon successful registration
+      navigate('/login');
+    } catch (err: any) {
+      console.error(err);
+      setError('Registration failed. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -54,13 +44,20 @@ const LoginPage: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      {alertMessage && <div className="alert">{alertMessage}</div>}
       <form onSubmit={handleSubmit} style={styles.form}>
-        <h2>Login</h2>
+        <h2>Register</h2>
+        <input
+          type="text"
+          value={username}
+          onChange={handleInputChange('username')}
+          placeholder="Username"
+          required
+          style={styles.input}
+        />
         <input
           type="email"
           value={email}
-          onChange={handleInputFor('email')}
+          onChange={handleInputChange('email')}
           placeholder="Email"
           required
           style={styles.input}
@@ -68,17 +65,17 @@ const LoginPage: React.FC = () => {
         <input
           type="password"
           value={password}
-          onChange={handleInputFor('password')}
+          onChange={handleInputChange('password')}
           placeholder="Password"
           required
           style={styles.input}
         />
         {error && <p style={styles.error}>{error}</p>}
         <button type="submit" style={styles.button} disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? 'Registering...' : 'Register'}
         </button>
         <p style={styles.switchText}>
-          Don't have an account? <Link to="/register">Register here</Link>
+          Already have an account? <Link to="/login">Login here</Link>
         </p>
       </form>
     </div>
@@ -125,7 +122,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   switchText: {
     marginTop: '20px',
     textAlign: 'center',
-  }
+  },
 };
 
-export default LoginPage;
+export default RegisterPage;
