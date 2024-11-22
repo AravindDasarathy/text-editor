@@ -1,4 +1,3 @@
-// RegisterPage.tsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -12,6 +11,8 @@ import {
   Button,
   Typography,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
@@ -29,6 +30,10 @@ const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  // state variables for success message and Snackbar
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
 
   const handleInputChange = (key: 'username' | 'email' | 'password') => (
     event: React.ChangeEvent<HTMLInputElement>
@@ -52,13 +57,30 @@ const RegisterPage: React.FC = () => {
         { username, email, password },
         { withCredentials: true }
       );
-      navigate('/login');
+      setSuccessMessage('Registration successful! Please check your email to verify your account.');
+      setSnackbarOpen(true);
+      setUsername('');
+      setCredentials({ email: '', password: '' });
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
     } catch (err: any) {
       console.error(err);
       setError('Registration failed. Please try again later.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSnackbarClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   return (
@@ -128,6 +150,17 @@ const RegisterPage: React.FC = () => {
           </Typography>
         </form>
       </FormContainer>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity="success" sx={{ width: '100%' }}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
