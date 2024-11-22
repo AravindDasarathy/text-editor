@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useAxios } from '../hooks/useAxios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -13,8 +13,8 @@ import {
   Container,
   Box,
 } from '@mui/material';
-import LogoutButton from './LogoutButton';
 import { styled } from '@mui/material/styles';
+import UserMenu from './UserMenu';
 
 interface Document {
   _id: string;
@@ -25,8 +25,13 @@ const DocumentListContainer = styled(Box)({
   marginTop: 16,
 });
 
+const TitleLink = styled(Link)({
+  textDecoration: 'none',
+  color: 'inherit'
+});
+
 const Dashboard: React.FC = () => {
-  const { accessToken, user } = useContext(AuthContext)!;
+  const { accessToken } = useContext(AuthContext)!;
   const axiosInstance = useAxios();
   const [ownedDocuments, setOwnedDocuments] = useState<Document[]>([]);
   const [collaboratingDocuments, setCollaboratingDocuments] = useState<Document[]>([]);
@@ -72,9 +77,9 @@ const Dashboard: React.FC = () => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Welcome, {user?.username}
+              <TitleLink to="/">Text Editor</TitleLink>
           </Typography>
-          <LogoutButton />
+          <UserMenu />
         </Toolbar>
       </AppBar>
       <Container>

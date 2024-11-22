@@ -1,5 +1,4 @@
-// AcceptInvitation.tsx
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useAxios } from '../hooks/useAxios';
@@ -15,11 +14,21 @@ const LoadingContainer = styled(Container)({
 const AcceptInvitation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { accessToken } = useContext(AuthContext)!;
+  const { accessToken, loading } = useContext(AuthContext)!;
   const axiosInstance = useAxios();
+  const hasAcceptedRef = useRef(false); // Flag to prevent multiple calls
 
   useEffect(() => {
+    if (loading) {
+      // Wait until authentication state is resolved
+      return;
+    }
+
     const acceptInvitation = async () => {
+      if (hasAcceptedRef.current) return; // Exit if already accepted
+
+      hasAcceptedRef.current = true;
+
       const queryParams = new URLSearchParams(location.search);
       const token = queryParams.get('token');
 

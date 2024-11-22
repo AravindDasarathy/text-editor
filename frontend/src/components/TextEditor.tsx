@@ -3,14 +3,14 @@ import ReactQuill from 'react-quill';
 import { DeltaStatic, Sources } from 'quill';
 import { io, Socket } from 'socket.io-client';
 import 'react-quill/dist/quill.snow.css';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { toolbarModules, toolbarFormats, serverConfigs, AppEvents } from '../configs';
 import InviteCollaborator from '../features/InviteCollaborator';
 
 import { AppBar, Toolbar, Typography, Button, Box, CircularProgress } from '@mui/material';
-import LogoutButton from './LogoutButton';
 import styled from '@emotion/styled';
+import UserMenu from './UserMenu';
 
 const EditorContainer = styled(Box)({
   padding: 16,
@@ -26,6 +26,11 @@ const LoadingContainer = styled(Box)({
   justifyContent: 'center',
   alignItems: 'center',
   height: 'calc(100vh - 64px)',
+});
+
+const TitleLink = styled(Link)({
+  textDecoration: 'none',
+  color: 'inherit'
 });
 
 /**
@@ -145,12 +150,12 @@ const TextEditor: React.FC = () => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Text Editor
+              <TitleLink to="/">Text Editor</TitleLink>
           </Typography>
           <Button color="inherit" onClick={handleInviteClick}>
             Invite Collaborator
           </Button>
-          <LogoutButton />
+          <UserMenu />
         </Toolbar>
       </AppBar>
       {documentLoaded && (
