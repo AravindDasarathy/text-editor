@@ -20,6 +20,7 @@ const App: React.FC = () => {
             <Route path="/" element={<InitRoute />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/accept-invite" element={<AcceptInvitation />}/>
             <Route
               path="/dashboard"
               element={
@@ -33,14 +34,6 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <TextEditor />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/accept-invite"
-              element={
-                <ProtectedRoute>
-                  <AcceptInvitation />
                 </ProtectedRoute>
               }
             />
