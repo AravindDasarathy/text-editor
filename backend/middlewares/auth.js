@@ -5,14 +5,13 @@ import {
   isAuthorisedUser,
   authenticateUser,
   registerUser,
-  sendVerificationEmail,
   isValidToken,
   isTokenExpired,
-  findUserById,
   updateUser,
   findUserByToken,
   generateTokens
 } from '../services/auth.js';
+import { sendVerificationEmail } from '../services/email.js';
 import { ForbiddenError, UnauthorizedError } from '../errors.js';
 import { HTTP_STATUS_CODES } from '../constants.js';
 import { clientConfigs, cookieConfigs, jwtConfigs } from '../configs/app.js';
@@ -57,10 +56,12 @@ const userRegisterationHandler = async (req, res, next) => {
     const savedUser = await registerUser(req.id, req.body);
 
     /**
+     * Ideally, we should rollback user creation if sendVerificationEmail() fails
+     * as user creation and sending email are to be treated as an atomic operation.
+     *
      * TODO:
-     * Ideally, we should rollback user creation if sendVerificationEmail() fails.
      * Rather than rollbacks, we can gracefully handle email failures and
-     * provide users with a way to ask for verification again.
+     * provide users with a way to verify again.
      */
     await sendVerificationEmail(req.id, savedUser);
 
@@ -130,7 +131,10 @@ const userVerificationHandler =  async (req, res, next) => {
 
     res.redirect(`${clientRedirectUrl}?message=verification_success`);
   } catch (error) {
-    next(error);
+    // next(error);
+    logger.error({ message: 'User verification failed', error });
+
+    return res.redirect(`${clientRedirectUrl}?message=verification_failed`);
   }
 };
 
@@ -177,10 +181,10 @@ const logoutHandler = async (req, res, next) => {
    * Accepting risks of not invalidating both tokens because:
    * 1. Refresh token is stored as http-only cookie (prevents xss).
    * 2. Access token is made short lived.
-   * This is done to make user session stateless, thereby, making it performant and simple.
+   * This is done to make user session stateless, thereby, making it performant (avoiding db calls) and simple.
    *
    * In production, I ideally will want to invalidate refresh tokens by persisting them in an
-   * in-memory cache and follow blacklist/whitelist strategies. Now, omitting this for simplicity
+   * in-memory cache and follow blacklist/whitelist strategies. Now, omitting this for simplicity.
    */
   try {
     res.clearCookie('refresh_token', {

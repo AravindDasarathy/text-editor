@@ -4,6 +4,7 @@ import {
   createDocumentHandler,
   getDocumentHandler,
   updateDocumentHandler,
+  inviteCollaborator,
   verifyAccessToken
 } from '../middlewares/index.js';
 
@@ -18,5 +19,7 @@ router.post('/', createDocumentHandler);
 router.get('/:id', getDocumentHandler);
 
 router.put('/:id', updateDocumentHandler);
+
+router.post('/:id/invite', inviteCollaborator);
 
 export default router;

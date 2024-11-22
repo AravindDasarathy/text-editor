@@ -1,5 +1,8 @@
 import { Document } from '../models/Document.js';
 import { ForbiddenError, NotFoundError } from '../errors.js';
+import { createInvitation } from '../services/document.js';
+import { sendInvitationEmail } from '../services/email.js';
+import logger from '../logger.js';
 
 const getDocumentsHandler = async (req, res, next) => {
   try {
@@ -87,9 +90,28 @@ const updateDocumentHandler = async (req, res, next) => {
   }
 };
 
+const inviteCollaborator = async (req, res, next) => {
+  const documentId = req.params.id;
+  const { email } = req.body;
+  const userId = req.user.userId; // From verifyAccessToken() middleware
+
+  try {
+    const invitation = await createInvitation(documentId, userId, email);
+
+    logger.info({ message: 'Invitation created successfully', data: { invitation }});
+
+    await sendInvitationEmail(req.id, invitation);
+
+    res.status(200).json({ message: 'Invitation sent successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export {
   getDocumentsHandler,
   createDocumentHandler,
   getDocumentHandler,
-  updateDocumentHandler
+  updateDocumentHandler,
+  inviteCollaborator
 };

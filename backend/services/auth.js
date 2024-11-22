@@ -1,8 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { v4 as uuid } from 'uuid';
-import FormData from 'form-data';
-import axios from 'axios';
 
 import {
   getUserByEmailFromDb,
@@ -13,12 +11,9 @@ import {
 } from '../data_access/user.js';
 import {
   jwtConfigs,
-  mailgunConfigs,
-  serverConfigs,
-  verificationConfigs,
   verificationTokenConfigs
 } from '../configs/app.js';
-import { ConflictError, ServiceUnavailableError } from '../errors.js';
+import { ConflictError } from '../errors.js';
 import logger from '../logger.js';
 import validator from 'validator';
 
@@ -85,46 +80,6 @@ const registerUser = async (reqId, user) => {
   return createUserInDb(user);
 }
 
-const generateEmailContent = (username, url) =>
-  `Hello ${username},\n\n${verificationConfigs.subject}: ${url}\n\nRegards,\nText Editor Team.`;
-
-const sendVerificationEmail = async (reqId, user) => {
-  const verificationUrl = `${serverConfigs.url}/verify/${user.verificationToken}`;
-  const formData = new FormData();
-
-  formData.append('from', verificationConfigs.fromEmail);
-  formData.append('to', user.email);
-  formData.append('subject', verificationConfigs.subject);
-  formData.append('text', generateEmailContent(user.username, verificationUrl));
-
-  const auth = 'Basic ' + Buffer.from(`api:${mailgunConfigs.apiKey}`).toString('base64');
-
-  const requestDetails = {
-    method: 'POST',
-    url: mailgunConfigs.apiUrl,
-    headers: {
-      'Authorization': auth,
-      ...formData.getHeaders()
-    },
-    data: formData,
-    maxBodyLength: Infinity,
-  };
-
-  try {
-    const response = await axios(requestDetails);
-
-    logger.info({ id: reqId, message: 'Email sent successfully', data: response.data });
-  } catch (error) {
-    logger.error({
-      id: reqId,
-      message: 'Mailgun API error',
-      error
-    });
-
-    throw new ServiceUnavailableError('Failed to send email');
-  }
-};
-
 const isValidToken = (token) => validator.isUUID(token);
 
 const isTokenExpired = (tokenDetails) => new Date() > tokenDetails.expiresAt;
@@ -139,7 +94,6 @@ export {
   isAuthorisedUser,
   authenticateUser,
   registerUser,
-  sendVerificationEmail,
   isValidToken,
   isTokenExpired,
   findUserById,

@@ -13,5 +13,6 @@ export {
   getDocumentsHandler,
   createDocumentHandler,
   getDocumentHandler,
-  updateDocumentHandler
+  updateDocumentHandler,
+  inviteCollaborator
 } from './documents.js';

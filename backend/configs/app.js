@@ -17,7 +17,7 @@ export const serverConfigs = {
 export const jwtConfigs = {
   accessTokenSecret: process.env.JWT_ACCESS_TOKEN_SECRET,
   refreshTokenSecret: process.env.JWT_REFRESH_TOKEN_SECRET,
-  accessTokenExpiry: process.env.JWT_ACCESS_TOKEN_EXPIRY || '1m',
+  accessTokenExpiry: process.env.JWT_ACCESS_TOKEN_EXPIRY || '15m',
   refreshTokenExpiry: process.env.JWT_REFRESH_TOKEN_EXPIRY || '2d'
 };
 
@@ -46,4 +46,13 @@ export const verificationConfigs = {
   fromEmail: process.env.MAILGUN_FROM_EMAIL || 'aravind.dasarat@gmail.com',
   subject: 'Text Editor - Email Verification',
   body: 'Thank you for creating an account with us! Please verify your email address within 3 minutes'
+};
+
+export const invitationConfigs = {
+  states: ['pending', 'accepted', 'rejected'],
+  expiry: 60 * 60 * 1000,
+  email: {
+    subject: 'Text Editor - Collaborator Invitation',
+    body: "You've been invited to collaborate on document"
+  }
 };
