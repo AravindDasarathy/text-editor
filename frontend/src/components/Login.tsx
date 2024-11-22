@@ -19,7 +19,6 @@ const LoginPage: React.FC = () => {
   const [alertMessage, setAlertMessage] = useState('');
   const location = useLocation();
 
-
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const messageKey = queryParams.get('message');
@@ -43,8 +42,18 @@ const LoginPage: React.FC = () => {
     setLoading(true);
     try {
       await login(email, password);
-      // Navigate to dashboard upon successful login
-      navigate('/dashboard');
+
+      // After successful login, check for redirect parameter
+      const queryParams = new URLSearchParams(location.search);
+      const redirectPath = queryParams.get('redirect');
+
+      if (redirectPath) {
+        // Navigate to the redirect path (e.g., /accept-invite?token=...)
+        navigate(redirectPath);
+      } else {
+        // Navigate to dashboard upon successful login
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError('Invalid email or password');
     } finally {

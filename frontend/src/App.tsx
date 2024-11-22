@@ -9,13 +9,14 @@ import TextEditor from './components/TextEditor';
 import InitRoute from './components/InitRoute';
 import NotFound from './components/NotFound';
 import RegisterPage from './components/Register';
+import AcceptInvitation from './components/AcceptInvitation';
 
 // TODO: Error Boundary
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <Routes>
           <Route path="/" element={<InitRoute />} />
           <Route path="/login" element={<LoginPage />} />
@@ -36,11 +37,19 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/accept-invite"
+            element={
+              <ProtectedRoute>
+                <AcceptInvitation />
+              </ProtectedRoute>
+            }
+          />
 
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 };
 

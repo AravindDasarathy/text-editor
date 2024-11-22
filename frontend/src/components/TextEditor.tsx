@@ -6,7 +6,13 @@ import 'react-quill/dist/quill.snow.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { toolbarModules, toolbarFormats, serverConfigs, AppEvents } from '../configs';
+import InviteCollaborator from './InviteCollaborator';
 
+/**
+ * This TextEditor component uses a simple strategy to handle concurrent writes.
+ * Ideally, it is better to handle via OT or CRDTs.
+ * For now, going with a simple approach.
+ */
 const TextEditor: React.FC = () => {
   const { id: documentId } = useParams<{ id: string }>();
   const { accessToken, setAccessToken, refreshAccessToken } = useContext(AuthContext)!;
@@ -109,6 +115,7 @@ const TextEditor: React.FC = () => {
 
   return (
     <>
+      {documentLoaded && <InviteCollaborator />}
       {!documentLoaded && <div>Loading document...</div>}
       <ReactQuill
         ref={(element) => {

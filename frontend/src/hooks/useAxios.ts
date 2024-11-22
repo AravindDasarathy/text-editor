@@ -3,7 +3,7 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
   AxiosError,
-  InternalAxiosRequestConfig
+  InternalAxiosRequestConfig,
 } from 'axios';
 import { useContext, useMemo } from 'react';
 import { AuthContext } from '../context/AuthContext';
@@ -63,7 +63,7 @@ export const useAxios = (): AxiosInstance => {
     );
 
     return instance;
-  }, [accessToken]);
+  }, [refreshAccessToken, navigate, accessToken]); // TODO: Check dependencies
 
   return axiosInstance;
 };
