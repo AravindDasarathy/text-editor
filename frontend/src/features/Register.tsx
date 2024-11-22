@@ -4,6 +4,16 @@ import axios from 'axios';
 import { useCredentials } from '../hooks/useCredentials';
 import { serverConfigs } from '../configs';
 
+import {
+  Container,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  CircularProgress,
+} from '@mui/material';
+
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState<string>('');
   const [email, password, setCredentials] = useCredentials();
@@ -44,86 +54,82 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <h2>Register</h2>
-        <input
-          type="text"
-          value={username}
-          onChange={handleInputChange('username')}
-          placeholder="Username"
-          required
-          style={styles.input}
-        />
-        <input
-          type="email"
-          value={email}
-          onChange={handleInputChange('email')}
-          placeholder="Email"
-          required
-          style={styles.input}
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={handleInputChange('password')}
-          placeholder="Password"
-          required
-          style={styles.input}
-        />
-        {error && <p style={styles.error}>{error}</p>}
-        <button type="submit" style={styles.button} disabled={loading}>
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-        <p style={styles.switchText}>
-          Already have an account? <Link to="/login">Login here</Link>
-        </p>
-      </form>
-    </div>
+    <Container maxWidth="sm">
+      <Box
+        sx={{
+          marginTop: 8,
+          padding: 4,
+          borderRadius: 2,
+          boxShadow: 3,
+          backgroundColor: '#fff',
+        }}
+      >
+        <form onSubmit={handleSubmit}>
+          <Typography variant="h4" gutterBottom>
+            Register
+          </Typography>
+          <TextField
+            type="text"
+            value={username}
+            onChange={handleInputChange('username')}
+            label="Username"
+            required
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            type="email"
+            value={email}
+            onChange={handleInputChange('email')}
+            label="Email"
+            required
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            type="password"
+            value={password}
+            onChange={handleInputChange('password')}
+            label="Password"
+            required
+            fullWidth
+            margin="normal"
+          />
+          {error && (
+            <Typography color="error" variant="body2" gutterBottom>
+              {error}
+            </Typography>
+          )}
+          <Box sx={{ position: 'relative', marginTop: 2 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              disabled={loading}
+            >
+              {loading ? 'Registering...' : 'Register'}
+            </Button>
+            {loading && (
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  marginTop: '-12px',
+                  marginLeft: '-12px',
+                }}
+              />
+            )}
+          </Box>
+          <Typography variant="body2" align="center" sx={{ marginTop: 2 }}>
+            Already have an account? <Link to="/login">Login here</Link>
+          </Typography>
+        </form>
+      </Box>
+    </Container>
   );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    backgroundColor: '#f0f2f5',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '40px',
-    borderRadius: '8px',
-    backgroundColor: '#fff',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    width: '300px',
-  },
-  input: {
-    marginBottom: '20px',
-    padding: '10px',
-    fontSize: '16px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
-  },
-  button: {
-    padding: '10px',
-    fontSize: '16px',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#1890ff',
-    color: '#fff',
-    cursor: 'pointer',
-  },
-  error: {
-    color: 'red',
-    marginBottom: '10px',
-  },
-  switchText: {
-    marginTop: '20px',
-    textAlign: 'center',
-  },
 };
 
 export default RegisterPage;

@@ -1,9 +1,19 @@
-// Dashboard.tsx
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useAxios } from '../hooks/useAxios';
-import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  List,
+  ListItemButton,
+  ListItemText,
+  Container,
+  Box,
+} from '@mui/material';
+import LogoutButton from './LogoutButton';
 
 interface Document {
   _id: string;
@@ -12,7 +22,6 @@ interface Document {
 
 const Dashboard: React.FC = () => {
   const { accessToken, user } = useContext(AuthContext)!;
-  const { logout } = useAuth();
   const axiosInstance = useAxios();
   const [ownedDocuments, setOwnedDocuments] = useState<Document[]>([]);
   const [collaboratingDocuments, setCollaboratingDocuments] = useState<Document[]>([]);
@@ -49,43 +58,48 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Failed to logout:', error);
-    }
-  };
-
   const handleDocumentClick = (documentId: string) => {
     navigate(`/documents/${documentId}`);
   };
 
   return (
-    <div>
-      <header>
-        <h1>Welcome, {user?.username}</h1>
-        <button onClick={handleLogout}>Logout</button>
-      </header>
-      <button onClick={handleNewDocument}>New Document</button>
-      <h2>Your Documents</h2>
-      <ul>
-        {ownedDocuments.map((doc) => (
-          <li key={doc._id} onClick={() => handleDocumentClick(doc._id)}>
-            {doc.title}
-          </li>
-        ))}
-      </ul>
-      <h2>Collaborating Documents</h2>
-      <ul>
-        {collaboratingDocuments.map((doc) => (
-          <li key={doc._id} onClick={() => handleDocumentClick(doc._id)}>
-            {doc.title}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Welcome, {user?.username}
+          </Typography>
+          <LogoutButton />
+        </Toolbar>
+      </AppBar>
+      <Container>
+        <Box sx={{ marginTop: 2 }}>
+          <Button variant="contained" color="primary" onClick={handleNewDocument}>
+            New Document
+          </Button>
+          <Typography variant="h5" sx={{ marginTop: 2 }}>
+            Your Documents
+          </Typography>
+          <List>
+            {ownedDocuments.map((doc) => (
+              <ListItemButton key={doc._id} onClick={() => handleDocumentClick(doc._id)}>
+                <ListItemText primary={doc.title} />
+              </ListItemButton>
+            ))}
+          </List>
+          <Typography variant="h5" sx={{ marginTop: 2 }}>
+            Collaborating Documents
+          </Typography>
+          <List>
+            {collaboratingDocuments.map((doc) => (
+              <ListItemButton key={doc._id} onClick={() => handleDocumentClick(doc._id)}>
+                <ListItemText primary={doc.title} />
+              </ListItemButton>
+            ))}
+          </List>
+        </Box>
+      </Container>
+    </>
   );
 };
 

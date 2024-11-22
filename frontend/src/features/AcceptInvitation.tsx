@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useAxios } from '../hooks/useAxios';
 
+import { Container, Typography, CircularProgress, Box } from '@mui/material';
+
 const AcceptInvitation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,12 +30,11 @@ const AcceptInvitation: React.FC = () => {
           navigate(`/documents/${response.data.documentId}`);
         } else {
           // User is not authenticated, redirect to login with token
-          navigate(`/login?redirect=accept-invite&token=${token}`);
+          navigate(`/login?redirect=/accept-invite?token=${token}`);
         }
       } catch (error: any) {
         console.error('Error accepting invitation:', error);
-        console.error(error);
-        alert(error.response || 'Failed to accept invitation.');
+        alert(error.response?.data?.message || 'Failed to accept invitation.');
         navigate('/');
       }
     };
@@ -41,7 +42,14 @@ const AcceptInvitation: React.FC = () => {
     acceptInvitation();
   }, [location.search, accessToken, navigate]);
 
-  return <div>Processing your invitation...</div>;
+  return (
+    <Container maxWidth="sm" sx={{ textAlign: 'center', marginTop: 4 }}>
+      <Typography variant="h6">Processing your invitation...</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+        <CircularProgress />
+      </Box>
+    </Container>
+  );
 };
 
 export default AcceptInvitation;

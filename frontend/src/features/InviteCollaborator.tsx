@@ -1,10 +1,26 @@
-// src/components/InviteCollaborator.tsx
-
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAxios } from '../hooks/useAxios';
 
-const InviteCollaborator: React.FC = () => {
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Typography,
+  CircularProgress,
+  Snackbar,
+  Alert,
+} from '@mui/material';
+
+interface InviteCollaboratorProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+const InviteCollaborator: React.FC<InviteCollaboratorProps> = ({ open, onClose }) => {
   const { id } = useParams<{ id: string }>();
   const documentId = id;
   const [inviteEmail, setInviteEmail] = useState<string>('');
@@ -12,25 +28,30 @@ const InviteCollaborator: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const axiosInstance = useAxios();
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
-  const handleInvite = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
+  const handleInvite = async () => {
     // Reset messages
     setSuccessMessage('');
     setErrorMessage('');
+    setSnackbarMessage('');
+    setSnackbarOpen(false);
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(inviteEmail)) {
       setErrorMessage('Please enter a valid email address.');
+      setSnackbarMessage('Please enter a valid email address.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
       return;
     }
 
     setLoading(true);
 
     try {
-      // Update API endpoint to use 'document' instead of 'documents'
       await axiosInstance.post(
         `/documents/${documentId}/invite`,
         { email: inviteEmail },
@@ -42,79 +63,73 @@ const InviteCollaborator: React.FC = () => {
       );
 
       setSuccessMessage('Invitation sent successfully!');
+      setSnackbarMessage('Invitation sent successfully!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
       setInviteEmail('');
     } catch (error: any) {
       console.error('Error inviting collaborator:', error);
       if (error.response && error.response.data && error.response.data.message) {
         setErrorMessage(error.response.data.message);
+        setSnackbarMessage(error.response.data.message);
       } else {
         setErrorMessage('Failed to send invitation. Please try again later.');
+        setSnackbarMessage('Failed to send invitation. Please try again later.');
       }
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div style={styles.container}>
-      <h3>Invite Collaborator</h3>
-      <form onSubmit={handleInvite} style={styles.form}>
-        <input
-          type="email"
-          value={inviteEmail}
-          onChange={(e) => setInviteEmail(e.target.value)}
-          placeholder="Enter collaborator's email"
-          required
-          style={styles.input}
-        />
-        <button type="submit" disabled={loading} style={styles.button}>
-          {loading ? 'Sending...' : 'Send Invitation'}
-        </button>
-      </form>
-      {successMessage && <p style={styles.success}>{successMessage}</p>}
-      {errorMessage && <p style={styles.error}>{errorMessage}</p>}
-    </div>
-  );
-};
+  const handleClose = () => {
+    onClose();
+    setInviteEmail('');
+    setSuccessMessage('');
+    setErrorMessage('');
+  };
 
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    marginTop: '20px',
-    padding: '20px',
-    border: '1px solid #ddd',
-    borderRadius: '8px',
-    backgroundColor: '#f9f9f9',
-    width: '100%',
-    maxWidth: '400px',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  input: {
-    padding: '10px',
-    fontSize: '16px',
-    marginBottom: '10px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
-  },
-  button: {
-    padding: '10px',
-    fontSize: '16px',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#1890ff',
-    color: '#fff',
-    cursor: 'pointer',
-  },
-  success: {
-    color: 'green',
-    marginTop: '10px',
-  },
-  error: {
-    color: 'red',
-    marginTop: '10px',
-  },
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
+  return (
+    <>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Invite Collaborator</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Collaborator's Email"
+            type="email"
+            fullWidth
+            variant="outlined"
+            value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+            disabled={loading}
+          />
+          {loading && <CircularProgress size={24} />}
+          {errorMessage && <Typography color="error">{errorMessage}</Typography>}
+          {successMessage && <Typography color="success">{successMessage}</Typography>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} disabled={loading}>
+            Cancel
+          </Button>
+          <Button onClick={handleInvite} color="primary" disabled={loading}>
+            Send Invitation
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert severity={snackbarSeverity} onClose={handleSnackbarClose} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </>
+  );
 };
 
 export default InviteCollaborator;

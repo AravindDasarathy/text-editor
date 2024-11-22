@@ -3,6 +3,16 @@ import { useAuth } from '../hooks/useAuth';
 import { useCredentials } from '../hooks/useCredentials';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
+import {
+  Container,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  CircularProgress,
+} from '@mui/material';
+
 const loginMessages: Record<string, string> = {
   'verification_failed': 'Invalid verification link.',
   'verification_expired': 'Verification link has expired.',
@@ -62,79 +72,74 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div style={styles.container}>
-      {alertMessage && <div className="alert">{alertMessage}</div>}
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <h2>Login</h2>
-        <input
-          type="email"
-          value={email}
-          onChange={handleInputFor('email')}
-          placeholder="Email"
-          required
-          style={styles.input}
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={handleInputFor('password')}
-          placeholder="Password"
-          required
-          style={styles.input}
-        />
-        {error && <p style={styles.error}>{error}</p>}
-        <button type="submit" style={styles.button} disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-        <p style={styles.switchText}>
-          Don't have an account? <Link to="/register">Register here</Link>
-        </p>
-      </form>
-    </div>
+    <Container maxWidth="sm">
+      <Box
+        sx={{
+          marginTop: 8,
+          padding: 4,
+          borderRadius: 2,
+          boxShadow: 3,
+          backgroundColor: '#fff',
+        }}
+      >
+        {alertMessage && <Alert severity="info">{alertMessage}</Alert>}
+        <form onSubmit={handleSubmit}>
+          <Typography variant="h4" gutterBottom>
+            Login
+          </Typography>
+          <TextField
+            type="email"
+            value={email}
+            onChange={handleInputFor('email')}
+            label="Email"
+            required
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            type="password"
+            value={password}
+            onChange={handleInputFor('password')}
+            label="Password"
+            required
+            fullWidth
+            margin="normal"
+          />
+          {error && (
+            <Typography color="error" variant="body2" gutterBottom>
+              {error}
+            </Typography>
+          )}
+          <Box sx={{ position: 'relative', marginTop: 2 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Login'}
+            </Button>
+            {loading && (
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  marginTop: '-12px',
+                  marginLeft: '-12px',
+                }}
+              />
+            )}
+          </Box>
+          <Typography variant="body2" align="center" sx={{ marginTop: 2 }}>
+            Don't have an account? <Link to="/register">Register here</Link>
+          </Typography>
+        </form>
+      </Box>
+    </Container>
   );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    backgroundColor: '#f0f2f5',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '40px',
-    borderRadius: '8px',
-    backgroundColor: '#fff',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    width: '300px',
-  },
-  input: {
-    marginBottom: '20px',
-    padding: '10px',
-    fontSize: '16px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
-  },
-  button: {
-    padding: '10px',
-    fontSize: '16px',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#1890ff',
-    color: '#fff',
-    cursor: 'pointer',
-  },
-  error: {
-    color: 'red',
-    marginBottom: '10px',
-  },
-  switchText: {
-    marginTop: '20px',
-    textAlign: 'center',
-  }
 };
 
 export default LoginPage;
