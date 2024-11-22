@@ -50,19 +50,20 @@ const isAuthorisedUser = async (reqId, email, password) => {
   };
 };
 
-const generateTokens = (userId) => {
-  const payload = { userId };
+const generateTokens = (userId, userEmail) => {
+  const refreshTokenpayload = { userId };
+  const accessTokenPayload = { userId, userEmail };
 
   const accessTokenOptions = { expiresIn: jwtConfigs.accessTokenExpiry };
-  const accessToken = jwt.sign(payload, jwtConfigs.accessTokenSecret, accessTokenOptions);
+  const accessToken = jwt.sign(accessTokenPayload, jwtConfigs.accessTokenSecret, accessTokenOptions);
 
   const refreshTokenOptions = { expiresIn: jwtConfigs.refreshTokenExpiry };
-  const refreshToken = jwt.sign(payload, jwtConfigs.refreshTokenSecret, refreshTokenOptions);
+  const refreshToken = jwt.sign(refreshTokenpayload, jwtConfigs.refreshTokenSecret, refreshTokenOptions);
 
   return { accessToken, refreshToken };
 };
 
-const authenticateUser = (userId) => generateTokens(userId);
+const authenticateUser = (userId, userEmail) => generateTokens(userId, userEmail);
 
 const registerUser = async (reqId, user) => {
   const existingUser = await getUserByEmailFromDb(user.email);

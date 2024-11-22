@@ -30,7 +30,7 @@ const loginHandler = async (req, res, next) => {
       throw new ForbiddenError('User not verified');
     }
 
-    const { accessToken, refreshToken } = authenticateUser(user._id);
+    const { accessToken, refreshToken } = authenticateUser(user._id, user.email);
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
@@ -147,7 +147,7 @@ const refreshTokenHandler = async (req, res, next) => {
 
   try {
     const payload = jwt.verify(refreshToken, jwtConfigs.refreshTokenSecret);
-    const { accessToken, refreshToken: newRefreshToken } = generateTokens(payload.userId);
+    const { accessToken, refreshToken: newRefreshToken } = generateTokens(payload.userId, payload.email);
 
     res.cookie('refresh_token', newRefreshToken, {
       httpOnly: true,
@@ -156,7 +156,7 @@ const refreshTokenHandler = async (req, res, next) => {
       maxAge: cookieConfigs.refreshTokenExpiry,
     });
 
-    res.json({ accessToken });
+    res.json({ accessToken, user: { email } });
   } catch (error) {
     next(new UnauthorizedError('Invalid refresh token'));
   }
