@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import axios, { AxiosResponse } from 'axios';
+import { serverConfigs } from '../configs';
 
 interface LoginResponse {
   accessToken: string;
@@ -17,7 +18,7 @@ export const useAuth = () => {
   const login = async (email: string, password: string): Promise<void> => {
     try {
       const response: AxiosResponse<LoginResponse> = await axios.post(
-        'http://localhost:3001/login',
+        `${serverConfigs.url}/login`,
         { email, password },
         { withCredentials: true }
       );
@@ -31,7 +32,7 @@ export const useAuth = () => {
 
   const logout = async (): Promise<void> => {
     try {
-      await axios.post('http://localhost:3001/logout', {}, { withCredentials: true });
+      await axios.post(`${serverConfigs.url}/logout`, {}, { withCredentials: true });
       setAccessToken(null);
       setUser(null);
     } catch (error) {

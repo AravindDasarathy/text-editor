@@ -84,7 +84,6 @@ const createInvitation = async (documentId, inviterId, inviteeEmail) => {
       token: uuid()
     });
   } catch (error) {
-    console.error('Error in processing create invitation - ', error);
     throw error;
   }
 };

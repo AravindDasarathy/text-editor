@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useCredentials } from '../hooks/useCredentials';
+import { serverConfigs } from '../configs';
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState<string>('');
@@ -28,7 +29,7 @@ const RegisterPage: React.FC = () => {
     setLoading(true);
     try {
       await axios.post(
-        'http://localhost:3001/register',
+        `${serverConfigs.url}/register`,
         { username, email, password },
         { withCredentials: true }
       );

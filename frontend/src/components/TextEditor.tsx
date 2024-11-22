@@ -6,7 +6,7 @@ import 'react-quill/dist/quill.snow.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { toolbarModules, toolbarFormats, serverConfigs, AppEvents } from '../configs';
-import InviteCollaborator from './InviteCollaborator';
+import InviteCollaborator from '../features/InviteCollaborator';
 
 /**
  * This TextEditor component uses a simple strategy to handle concurrent writes.

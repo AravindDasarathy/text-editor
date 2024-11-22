@@ -8,6 +8,7 @@ import axios, {
 import { useContext, useMemo } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { serverConfigs } from '../configs';
 
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   _retry?: boolean;
@@ -19,7 +20,7 @@ export const useAxios = (): AxiosInstance => {
 
   const axiosInstance = useMemo(() => {
     const instance = axios.create({
-      baseURL: 'http://localhost:3001',
+      baseURL: serverConfigs.url,
       withCredentials: true, // Include cookies in requests
     });
 

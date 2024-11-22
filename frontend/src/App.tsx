@@ -1,15 +1,14 @@
-// App.tsx
 import React from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import LoginPage from './components/Login';
+import LoginPage from './features/Login';
 import Dashboard from './components/Dashboard';
 import TextEditor from './components/TextEditor';
 import InitRoute from './components/InitRoute';
 import NotFound from './components/NotFound';
-import RegisterPage from './components/Register';
-import AcceptInvitation from './components/AcceptInvitation';
+import RegisterPage from './features/Register';
+import AcceptInvitation from './features/AcceptInvitation';
 
 // TODO: Error Boundary
 

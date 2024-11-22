@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { createContext, useState, ReactNode, useEffect } from 'react';
+import { serverConfigs } from '../configs';
 
 interface User {
   id: string;
@@ -29,7 +30,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const refreshAccessToken = async () => {
     try {
-      const response = await axios.post('http://localhost:3001/refresh-token', {}, { withCredentials: true });
+      const response = await axios.post(`${serverConfigs.url}/refresh-token`, {}, { withCredentials: true });
       setAccessToken(response.data.accessToken);
       setUser(response.data.user);
     } catch (error) {
