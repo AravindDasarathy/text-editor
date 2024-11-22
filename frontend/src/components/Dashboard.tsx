@@ -14,11 +14,16 @@ import {
   Box,
 } from '@mui/material';
 import LogoutButton from './LogoutButton';
+import { styled } from '@mui/material/styles';
 
 interface Document {
   _id: string;
   title: string;
 }
+
+const DocumentListContainer = styled(Box)({
+  marginTop: 16,
+});
 
 const Dashboard: React.FC = () => {
   const { accessToken, user } = useContext(AuthContext)!;
@@ -73,34 +78,43 @@ const Dashboard: React.FC = () => {
         </Toolbar>
       </AppBar>
       <Container>
-        <Box sx={{ marginTop: 2 }}>
+        <DocumentListContainer>
           <Button variant="contained" color="primary" onClick={handleNewDocument}>
             New Document
           </Button>
-          <Typography variant="h5" sx={{ marginTop: 2 }}>
-            Your Documents
-          </Typography>
-          <List>
-            {ownedDocuments.map((doc) => (
-              <ListItemButton key={doc._id} onClick={() => handleDocumentClick(doc._id)}>
-                <ListItemText primary={doc.title} />
-              </ListItemButton>
-            ))}
-          </List>
-          <Typography variant="h5" sx={{ marginTop: 2 }}>
-            Collaborating Documents
-          </Typography>
-          <List>
-            {collaboratingDocuments.map((doc) => (
-              <ListItemButton key={doc._id} onClick={() => handleDocumentClick(doc._id)}>
-                <ListItemText primary={doc.title} />
-              </ListItemButton>
-            ))}
-          </List>
-        </Box>
+          <DocumentList
+            title="Your Documents"
+            documents={ownedDocuments}
+            onDocumentClick={handleDocumentClick}
+          />
+          <DocumentList
+            title="Collaborating Documents"
+            documents={collaboratingDocuments}
+            onDocumentClick={handleDocumentClick}
+          />
+        </DocumentListContainer>
       </Container>
     </>
   );
 };
+
+interface DocumentListProps {
+  title: string;
+  documents: Document[];
+  onDocumentClick: (id: string) => void;
+}
+
+const DocumentList: React.FC<DocumentListProps> = ({ title, documents, onDocumentClick }) => (
+  <Box sx={{ marginTop: 2 }}>
+    <Typography variant="h5">{title}</Typography>
+    <List>
+      {documents.map((doc) => (
+        <ListItemButton key={doc._id} onClick={() => onDocumentClick(doc._id)}>
+          <ListItemText primary={doc.title} />
+        </ListItemButton>
+      ))}
+    </List>
+  </Box>
+);
 
 export default Dashboard;

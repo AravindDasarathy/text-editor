@@ -1,3 +1,4 @@
+// LoginPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useCredentials } from '../hooks/useCredentials';
@@ -12,12 +13,21 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+const FormContainer = styled(Box)(({ theme }) => ({
+  marginTop: theme.spacing(8),
+  padding: theme.spacing(4),
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[3],
+  backgroundColor: '#fff',
+}));
 
 const loginMessages: Record<string, string> = {
-  'verification_failed': 'Invalid verification link.',
-  'verification_expired': 'Verification link has expired.',
-  'already_verified': 'Your email is already verified. Please log in.',
-  'verification_success': 'Your email is verified successfully. Please log in.'
+  verification_failed: 'Invalid verification link.',
+  verification_expired: 'Verification link has expired.',
+  already_verified: 'Your email is already verified. Please log in.',
+  verification_success: 'Your email is verified successfully. Please log in.',
 };
 
 const LoginPage: React.FC = () => {
@@ -73,15 +83,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <Container maxWidth="sm">
-      <Box
-        sx={{
-          marginTop: 8,
-          padding: 4,
-          borderRadius: 2,
-          boxShadow: 3,
-          backgroundColor: '#fff',
-        }}
-      >
+      <FormContainer>
         {alertMessage && <Alert severity="info">{alertMessage}</Alert>}
         <form onSubmit={handleSubmit}>
           <Typography variant="h4" gutterBottom>
@@ -137,7 +139,7 @@ const LoginPage: React.FC = () => {
             Don't have an account? <Link to="/register">Register here</Link>
           </Typography>
         </form>
-      </Box>
+      </FormContainer>
     </Container>
   );
 };

@@ -1,3 +1,4 @@
+// RegisterPage.tsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -10,9 +11,17 @@ import {
   TextField,
   Button,
   Typography,
-  Alert,
   CircularProgress,
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+const FormContainer = styled(Box)(({ theme }) => ({
+  marginTop: theme.spacing(8),
+  padding: theme.spacing(4),
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[3],
+  backgroundColor: '#fff',
+}));
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState<string>('');
@@ -43,7 +52,6 @@ const RegisterPage: React.FC = () => {
         { username, email, password },
         { withCredentials: true }
       );
-      // Redirect to login upon successful registration
       navigate('/login');
     } catch (err: any) {
       console.error(err);
@@ -55,15 +63,7 @@ const RegisterPage: React.FC = () => {
 
   return (
     <Container maxWidth="sm">
-      <Box
-        sx={{
-          marginTop: 8,
-          padding: 4,
-          borderRadius: 2,
-          boxShadow: 3,
-          backgroundColor: '#fff',
-        }}
-      >
+      <FormContainer>
         <form onSubmit={handleSubmit}>
           <Typography variant="h4" gutterBottom>
             Register
@@ -127,7 +127,7 @@ const RegisterPage: React.FC = () => {
             Already have an account? <Link to="/login">Login here</Link>
           </Typography>
         </form>
-      </Box>
+      </FormContainer>
     </Container>
   );
 };

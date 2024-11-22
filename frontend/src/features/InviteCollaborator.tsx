@@ -96,7 +96,7 @@ const InviteCollaborator: React.FC<InviteCollaboratorProps> = ({ open, onClose }
 
   return (
     <>
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>Invite Collaborator</DialogTitle>
         <DialogContent>
           <TextField
@@ -109,11 +109,12 @@ const InviteCollaborator: React.FC<InviteCollaboratorProps> = ({ open, onClose }
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
             disabled={loading}
+            error={!!errorMessage}
+            helperText={errorMessage}
           />
           {loading && <CircularProgress size={24} />}
-          {errorMessage && <Typography color="error">{errorMessage}</Typography>}
           {successMessage && <Typography color="success">{successMessage}</Typography>}
-        </DialogContent>
+          </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} disabled={loading}>
             Cancel

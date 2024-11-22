@@ -8,8 +8,25 @@ import { AuthContext } from '../context/AuthContext';
 import { toolbarModules, toolbarFormats, serverConfigs, AppEvents } from '../configs';
 import InviteCollaborator from '../features/InviteCollaborator';
 
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, CircularProgress } from '@mui/material';
 import LogoutButton from './LogoutButton';
+import styled from '@emotion/styled';
+
+const EditorContainer = styled(Box)({
+  padding: 16,
+});
+
+const StyledReactQuill = styled(ReactQuill)({
+  display: 'block',
+  height: 'calc(100vh - 64px - 32px)',
+});
+
+const LoadingContainer = styled(Box)({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: 'calc(100vh - 64px)',
+});
 
 /**
  * This TextEditor component uses a simple strategy to handle concurrent writes.
@@ -82,7 +99,7 @@ const TextEditor: React.FC = () => {
       }
       socketRef.current = null;
     };
-  }, [documentId, accessToken, refreshAccessToken]);
+  }, [documentId, accessToken, refreshAccessToken, navigate, setAccessToken]);
 
   useEffect(() => {
     if (!documentLoaded) return;
@@ -139,9 +156,13 @@ const TextEditor: React.FC = () => {
       {documentLoaded && (
         <InviteCollaborator open={inviteDialogOpen} onClose={handleInviteClose} />
       )}
-      {!documentLoaded && <div>Loading document...</div>}
-      <Box sx={{ padding: 2 }}>
-        <ReactQuill
+      {!documentLoaded && (
+        <LoadingContainer>
+          <CircularProgress />
+        </LoadingContainer>
+      )}
+      <EditorContainer>
+        <StyledReactQuill
           ref={(element) => {
             quillRef.current = element;
           }}
@@ -150,9 +171,8 @@ const TextEditor: React.FC = () => {
           modules={toolbarModules}
           formats={toolbarFormats}
           readOnly={!documentLoaded}
-          style={{ display: documentLoaded ? 'block' : 'none', height: 'calc(100vh - 64px - 16px)' }}
         />
-      </Box>
+      </EditorContainer>
     </>
   );
 };

@@ -1,11 +1,18 @@
+// NotFound.tsx
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
 import { Container, Typography, Button, Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+const NotFoundContainer = styled(Container)({
+  textAlign: 'center',
+  marginTop: '64px',
+});
 
 const NotFound: React.FC = () => {
   return (
-    <Container maxWidth="sm" sx={{ textAlign: 'center', marginTop: 8 }}>
+    <NotFoundContainer maxWidth="sm">
       <Typography variant="h4" gutterBottom>
         404 - Page Not Found
       </Typography>
@@ -17,7 +24,7 @@ const NotFound: React.FC = () => {
           Go to Home
         </Button>
       </Box>
-    </Container>
+    </NotFoundContainer>
   );
 };
 

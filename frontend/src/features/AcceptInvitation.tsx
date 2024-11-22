@@ -1,9 +1,16 @@
+// AcceptInvitation.tsx
 import React, { useEffect, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useAxios } from '../hooks/useAxios';
 
 import { Container, Typography, CircularProgress, Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+const LoadingContainer = styled(Container)({
+  textAlign: 'center',
+  marginTop: '32px',
+});
 
 const AcceptInvitation: React.FC = () => {
   const location = useLocation();
@@ -40,15 +47,15 @@ const AcceptInvitation: React.FC = () => {
     };
 
     acceptInvitation();
-  }, [location.search, accessToken, navigate]);
+  }, [location.search, accessToken, navigate, axiosInstance]);
 
   return (
-    <Container maxWidth="sm" sx={{ textAlign: 'center', marginTop: 4 }}>
+    <LoadingContainer maxWidth="sm">
       <Typography variant="h6">Processing your invitation...</Typography>
       <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
         <CircularProgress />
       </Box>
-    </Container>
+    </LoadingContainer>
   );
 };
 

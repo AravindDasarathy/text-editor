@@ -1,5 +1,12 @@
+// ErrorBoundary.tsx
 import React, { Component, ReactNode } from 'react';
 import { Container, Typography, Button, Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+const ErrorContainer = styled(Container)({
+  textAlign: 'center',
+  marginTop: '64px',
+});
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -22,7 +29,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log error details if needed
     console.error('Uncaught error:', error, errorInfo);
   }
 
@@ -35,7 +41,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     if (this.state.hasError) {
       // Fallback UI when an error is caught
       return (
-        <Container maxWidth="sm" sx={{ textAlign: 'center', marginTop: 8 }}>
+        <ErrorContainer maxWidth="sm">
           <Typography variant="h4" gutterBottom>
             Something went wrong.
           </Typography>
@@ -47,7 +53,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               Reload
             </Button>
           </Box>
-        </Container>
+        </ErrorContainer>
       );
     }
 
