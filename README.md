@@ -11,7 +11,13 @@ Ensure the following are installed on your system:
 * npm (comes with Node.js)
 * MongoDB (local or hosted, e.g., MongoDB Atlas)
 
-## Installation
+## Docker Installation
+Create your .env file based on the .env file in backend and execute:
+```console
+docker-compose up --build
+```
+
+## Manual Installation
 Clone the repository and navigate to the respective directories for frontend and backend setup.
 ```console
 git clone https://github.com/AravindDasarathy/text-editor.git
