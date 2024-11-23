@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 
-dotenv.config();
+if (process.env.NODE_ENV !== 'PROD') {
+  dotenv.config();
+}
 
 export const clientConfigs = {
   url: 'http://localhost:3000'
@@ -30,8 +32,7 @@ export const dbConfigs = {
 };
 
 export const verificationTokenConfigs = {
-  // 3 minutes
-  expiry: 3 * 60 * 1000
+  expiry: 60 * 60 * 1000
 };
 
 export const mailgunConfigs = {

@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --delay 500ms server.js"
+    "start": "node server.js",
+    "dev:start": "nodemon --delay 500ms server.js"
   },
   "repository": {
     "type": "git",

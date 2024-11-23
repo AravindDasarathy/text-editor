@@ -21,7 +21,7 @@ const globalErrorHandler = (err, req, res, next) => {
     id: req.id,
     message: err.message,
     statusCode: err.statusCode,
-    ...(process.env.NODE_ENV !== 'prod' && { stack: err.stack }),
+    ...(process.env.NODE_ENV !== 'PROD' && { stack: err.stack }),
   }
 
   if (err.isOperational) {
